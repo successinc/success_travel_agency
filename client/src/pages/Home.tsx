@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Plane, Globe, Users, Star, MapPin, Phone, Mail } from "lucide-react";
+import { ArrowRight, Plane, Globe, Users, Star, MapPin, Phone, Mail, Facebook, Instagram } from "lucide-react";
 import { Link } from "wouter";
 import { getLoginUrl } from "@/const";
 import Globe3D from "@/components/Globe3D";
@@ -9,6 +9,105 @@ import "@/styles/premium-design.css";
 import { useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
+
+// Image URLs from S3
+const IMAGES = {
+  destination1: "/manus-storage/Fh78b3YhtWWo_b963ea7f.jpg",
+  destination2: "/manus-storage/8sbskcbi4mgx_9f8d83d2.jpg",
+  destination3: "/manus-storage/oeC9CcbdCJDB_3e4549d3.jpg",
+  sunset: "/manus-storage/rO8wJQADaX4e_be055e46.jpg",
+  flight: "/manus-storage/spb4Bi0QMM0f_197afb76.jpg",
+  visa: "/manus-storage/57IoVhPC4tdC.jpeg",
+  passport: "/manus-storage/vTStkJGr2Qj3_6a8591d7.jpg",
+  travel: "/manus-storage/3ELSwPsRZwl9_471038fc.jpg",
+};
+
+const services = [
+  {
+    id: 1,
+    name: "Flight Tickets",
+    icon: "✈️",
+    shortDesc: "Book domestic and international flights",
+    fullDesc: "Get the best deals on flights worldwide with our expert booking service",
+    processing: "1-2 hours",
+    requirements: "Valid ID, Passport",
+    image: IMAGES.flight,
+  },
+  {
+    id: 2,
+    name: "Canada Visa",
+    icon: "🍁",
+    shortDesc: "Study, Work & Immigration",
+    fullDesc: "Complete visa processing for Canada with high success rate",
+    processing: "4-6 weeks",
+    requirements: "Documents, Medical exam",
+    image: IMAGES.visa,
+  },
+  {
+    id: 3,
+    name: "UK Visa",
+    icon: "🇬🇧",
+    shortDesc: "Student & Work Visas",
+    fullDesc: "Expert guidance for UK visa applications",
+    processing: "3-4 weeks",
+    requirements: "Passport, Proof of funds",
+    image: IMAGES.passport,
+  },
+  {
+    id: 4,
+    name: "Australia Visa",
+    icon: "🦘",
+    shortDesc: "Work & Skilled Migration",
+    fullDesc: "Comprehensive Australia visa solutions",
+    processing: "2-3 weeks",
+    requirements: "Skills assessment, IELTS",
+    image: IMAGES.destination2,
+  },
+  {
+    id: 5,
+    name: "Schengen Visa",
+    icon: "🇪🇺",
+    shortDesc: "Europe Travel & Work",
+    fullDesc: "Access to 27 European countries",
+    processing: "2-3 weeks",
+    requirements: "Travel insurance, Itinerary",
+    image: IMAGES.destination1,
+  },
+  {
+    id: 6,
+    name: "Work Permit",
+    icon: "💼",
+    shortDesc: "Employment Authorization",
+    fullDesc: "Professional work permits globally",
+    processing: "3-4 weeks",
+    requirements: "Job offer, Qualifications",
+    image: IMAGES.travel,
+  },
+];
+
+const testimonials = [
+  {
+    name: "Ahmed Hassan",
+    country: "Bangladesh",
+    rating: 5,
+    text: "Success Inc. made my Canada visa process so smooth. Highly recommended!",
+    image: IMAGES.destination1,
+  },
+  {
+    name: "Fatima Khan",
+    country: "Bangladesh",
+    rating: 5,
+    text: "Professional service with excellent support. Got my UK visa in 3 weeks!",
+    image: IMAGES.destination2,
+  },
+  {
+    name: "Rajesh Patel",
+    country: "India",
+    rating: 5,
+    text: "Best travel agency I've worked with. Amazing results!",
+    image: IMAGES.sunset,
+  },
+];
 
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
@@ -133,18 +232,19 @@ export default function Home() {
             {services.map((service, idx) => (
               <Link key={idx} href={`/services/${service.id}`}>
                 <a>
-                  <div className="flip-card h-96 cursor-pointer group">
+                  <div className="flip-card h-96 cursor-pointer group overflow-hidden rounded-2xl">
                     <div className="flip-card-inner relative w-full h-full">
                       {/* Front */}
-                      <div className="flip-card-front glass-card p-8 flex flex-col justify-between h-full">
-                        <div>
-                          <div className="w-16 h-16 rounded-xl bg-gradient-accent mb-4 flex items-center justify-center text-white text-2xl">
+                      <div className="flip-card-front glass-card p-8 flex flex-col justify-between h-full bg-cover bg-center" style={{backgroundImage: `url(${service.image})`}}>
+                        <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-all"></div>
+                        <div className="relative z-10">
+                          <div className="w-16 h-16 rounded-xl bg-gradient-accent mb-4 flex items-center justify-center text-white text-3xl">
                             {service.icon}
                           </div>
                           <h3 className="text-2xl font-bold text-white mb-2">{service.name}</h3>
-                          <p className="text-gray-400 text-sm">{service.shortDesc}</p>
+                          <p className="text-gray-200 text-sm">{service.shortDesc}</p>
                         </div>
-                        <div className="flex items-center text-green-400 group-hover:translate-x-2 transition-transform">
+                        <div className="relative z-10 flex items-center text-green-400 group-hover:translate-x-2 transition-transform">
                           Learn More <ArrowRight className="w-4 h-4 ml-2" />
                         </div>
                       </div>
@@ -176,11 +276,14 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, idx) => (
-              <div key={idx} className="glass-card p-8 hover:shadow-lg transition-all">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
+              <div key={idx} className="glass-card p-8 hover:shadow-lg transition-all overflow-hidden rounded-2xl">
+                <div className="relative mb-6">
+                  <img src={testimonial.image} alt={testimonial.name} className="w-full h-40 object-cover rounded-lg mb-4" />
+                  <div className="flex gap-1">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
                 </div>
                 <p className="text-gray-300 mb-6 italic">"{testimonial.text}"</p>
                 <div className="flex items-center gap-3">
@@ -207,8 +310,12 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Contact Info */}
+            {/* Contact Info with Image */}
             <div className="space-y-8">
+              <div className="rounded-2xl overflow-hidden h-64 mb-8">
+                <img src={IMAGES.destination3} alt="Office Location" className="w-full h-full object-cover" />
+              </div>
+
               <div className="glass-card p-6">
                 <div className="flex items-start gap-4">
                   <MapPin className="w-6 h-6 text-green-400 flex-shrink-0 mt-1" />
@@ -249,7 +356,7 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-lg bg-gradient-accent flex items-center justify-center text-white hover:shadow-lg transition-all hover:scale-110"
                   >
-                    f
+                    <Facebook className="w-6 h-6" />
                   </a>
                   <a
                     href="https://www.instagram.com/success.inc22"
@@ -257,184 +364,60 @@ export default function Home() {
                     rel="noopener noreferrer"
                     className="w-12 h-12 rounded-lg bg-gradient-accent flex items-center justify-center text-white hover:shadow-lg transition-all hover:scale-110"
                   >
-                    📷
+                    <Instagram className="w-6 h-6" />
                   </a>
                 </div>
               </div>
             </div>
 
             {/* Contact Form */}
-            <form onSubmit={handleContactSubmit} className="space-y-6">
-              <div className="glass-card p-8">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-2">Name *</label>
-                    <input
-                      type="text"
-                      required
-                      value={contactForm.name}
-                      onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400"
-                      placeholder="Your name"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-2">Email *</label>
-                    <input
-                      type="email"
-                      required
-                      value={contactForm.email}
-                      onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400"
-                      placeholder="your@email.com"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-2">Phone</label>
-                    <input
-                      type="tel"
-                      value={contactForm.phone}
-                      onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400"
-                      placeholder="+880..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-2">Message</label>
-                    <textarea
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
-                      rows={4}
-                      placeholder="Your message..."
-                    ></textarea>
-                  </div>
-
-                  <Button className="btn-premium w-full">Send Message</Button>
+            <div className="glass-card p-8">
+              <form onSubmit={handleContactSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-white font-semibold mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
+                    placeholder="Your name"
+                  />
                 </div>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-white font-semibold mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
+                    placeholder="Your email"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white font-semibold mb-2">Phone</label>
+                  <input
+                    type="tel"
+                    value={contactForm.phone}
+                    onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-400"
+                    placeholder="Your phone"
+                  />
+                </div>
+                <div>
+                  <label className="block text-white font-semibold mb-2">Message</label>
+                  <textarea
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                    className="w-full px-4 py-3 rounded-lg bg-slate-700/50 border border-slate-600 text-white placeholder-gray-400 focus:outline-none focus:border-green-400 h-32 resize-none"
+                    placeholder="Your message"
+                  ></textarea>
+                </div>
+                <Button className="btn-premium w-full">Send Message</Button>
+              </form>
+            </div>
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t border-white/10 py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold text-white mb-4">Success Inc.</h3>
-              <p className="text-gray-400 text-sm">Your trusted partner for global travel and immigration services.</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Services</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#services" className="hover:text-green-400 transition">Flight Tickets</a></li>
-                <li><a href="#services" className="hover:text-green-400 transition">Visit Visas</a></li>
-                <li><a href="#services" className="hover:text-green-400 transition">Work Permits</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#contact" className="hover:text-green-400 transition">Contact</a></li>
-                <li><a href="#testimonials" className="hover:text-green-400 transition">Testimonials</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-white mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-green-400 transition">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-green-400 transition">Terms of Service</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-white/10 pt-8 text-center text-gray-400 text-sm">
-            <p>&copy; 2026 Success Inc. All rights reserved. | On Travel Agency</p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
-
-const services = [
-  {
-    id: 1,
-    name: "Flight Tickets",
-    icon: "✈️",
-    shortDesc: "Book international and domestic flights with ease",
-    fullDesc: "Access to major airlines worldwide with competitive pricing and flexible booking options.",
-    processing: "1-3 business days",
-    requirements: "Valid passport, travel dates",
-  },
-  {
-    id: 2,
-    name: "Canada Visa",
-    icon: "🍁",
-    shortDesc: "Complete visa assistance for visiting Canada",
-    fullDesc: "Expert guidance through the entire Canadian visa application process with high approval rates.",
-    processing: "2-4 weeks",
-    requirements: "Passport, proof of funds, employment letter",
-  },
-  {
-    id: 3,
-    name: "UK Visa",
-    icon: "🇬🇧",
-    shortDesc: "Hassle-free UK visa services",
-    fullDesc: "Professional guidance ensuring your application meets all UK requirements.",
-    processing: "3-6 weeks",
-    requirements: "Passport, accommodation details, return ticket",
-  },
-  {
-    id: 4,
-    name: "Australia Visa",
-    icon: "🇦🇺",
-    shortDesc: "Australian visa expertise with proven success",
-    fullDesc: "Get your Australian visitor visa with confidence and expert guidance.",
-    processing: "2-3 weeks",
-    requirements: "Passport, health requirements, financial proof",
-  },
-  {
-    id: 5,
-    name: "Schengen Visa",
-    icon: "🇪🇺",
-    shortDesc: "Navigate the Schengen visa process",
-    fullDesc: "Access to 27 European countries with one visa and expert support.",
-    processing: "2-4 weeks",
-    requirements: "Passport, travel insurance, accommodation",
-  },
-  {
-    id: 6,
-    name: "Work Permit",
-    icon: "💼",
-    shortDesc: "Employment visa solutions",
-    fullDesc: "Get the right work permit for your international career goals.",
-    processing: "4-8 weeks",
-    requirements: "Job offer, employment contract, qualifications",
-  },
-];
-
-const testimonials = [
-  {
-    name: "Ahmed Hassan",
-    country: "Bangladesh",
-    rating: 5,
-    text: "Success Inc. made my Canada visa process incredibly smooth. Highly recommended!",
-  },
-  {
-    name: "Fatima Khan",
-    country: "Bangladesh",
-    rating: 5,
-    text: "Professional team, quick processing, and excellent support throughout the journey.",
-  },
-  {
-    name: "Karim Rahman",
-    country: "Bangladesh",
-    rating: 5,
-    text: "Got my UK visa approved on first attempt. Success Inc. knows exactly what they're doing!",
-  },
-];
