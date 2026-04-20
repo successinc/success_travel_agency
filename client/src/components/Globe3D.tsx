@@ -12,6 +12,9 @@ export default function Globe3D() {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // Scene Setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -27,19 +30,20 @@ export default function Globe3D() {
     camera.position.z = 3;
     cameraRef.current = camera;
 
-    // Renderer Setup
+    // Renderer Setup - optimized for performance
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
+    renderer.shadowMap.enabled = false; // Disable shadows for better performance
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Create Globe
-    const geometry = new THREE.IcosahedronGeometry(1.5, 64);
+    // Create Globe with optimized geometry
+    const geometryDetail = prefersReducedMotion ? 32 : 48;
+    const geometry = new THREE.IcosahedronGeometry(1.5, geometryDetail);
     const canvas = document.createElement('canvas');
-    canvas.width = 2048;
-    canvas.height = 1024;
+    canvas.width = 1024; // Reduced from 2048 for performance
+    canvas.height = 512; // Reduced from 1024 for performance
     const ctx = canvas.getContext('2d')!;
 
     // Draw gradient on canvas
@@ -70,14 +74,14 @@ export default function Globe3D() {
     });
 
     const globe = new THREE.Mesh(geometry, material);
-    globe.castShadow = true;
-    globe.receiveShadow = true;
+    globe.castShadow = false;
+    globe.receiveShadow = false;
     scene.add(globe);
     globeRef.current = globe;
 
-    // Create Particles
+    // Create Particles - optimized count
     const particleGeometry = new THREE.BufferGeometry();
-    const particleCount = 1000;
+    const particleCount = prefersReducedMotion ? 300 : 800;
     const positions = new Float32Array(particleCount * 3);
 
     for (let i = 0; i < particleCount * 3; i += 3) {
@@ -100,13 +104,13 @@ export default function Globe3D() {
     scene.add(particles);
     particlesRef.current = particles;
 
-    // Lighting
+    // Lighting - optimized
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(5, 5, 5);
-    directionalLight.castShadow = true;
+    directionalLight.castShadow = false;
     scene.add(directionalLight);
 
     const pointLight = new THREE.PointLight(0x22c55e, 0.5);
@@ -128,14 +132,14 @@ export default function Globe3D() {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      if (globeRef.current) {
+      if (globeRef.current && !prefersReducedMotion) {
         globeRef.current.rotation.x += 0.0005;
         globeRef.current.rotation.y += 0.001;
         globeRef.current.rotation.x += mouseY * 0.0005;
         globeRef.current.rotation.y += mouseX * 0.0005;
       }
 
-      if (particlesRef.current) {
+      if (particlesRef.current && !prefersReducedMotion) {
         particlesRef.current.rotation.x += 0.0002;
         particlesRef.current.rotation.y += 0.0003;
       }
@@ -170,6 +174,7 @@ export default function Globe3D() {
       particleGeometry.dispose();
       particleMaterial.dispose();
       renderer.dispose();
+      canvas.remove();
     };
   }, []);
 

@@ -147,12 +147,12 @@ Premium, elegant travel and immigration agency website with 3D immersive hero, s
 
 ### Phase 5: Phone Number & Polish
 - [x] Add phone number: +8801613076654
-- [ ] Fine-tune all animations (reduce-motion, performance)
-- [ ] Optimize 3D performance (geometry detail, particle count)
+- [ ] Fine-tune all animations (reduce-motion, performance) - Globe3D done, need full audit
+- [x] Optimize 3D performance (geometry detail, particle count)
 - [ ] Ensure responsive design (mobile testing)
 
 ### Phase 6: Testing & Delivery
 - [x] Run all tests (10/10 passing)
 - [ ] Browser testing (Chrome, Firefox, Safari)
-- [ ] Mobile responsiveness check
+- [ ] Mobile responsiveness check (need actual verification)
 - [ ] Create final checkpoint
